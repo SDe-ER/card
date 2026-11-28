@@ -1,7 +1,7 @@
 # Domain map
 
 Sources: `card/card/doctype/*/*.json`, their controllers, `card/hooks.py`, `card/gl/`, `card/transfer.py`,
-`card/materials.py`, `card/modules.txt`. CARD is one Frappe app (`required_apps = ["erpnext"]`, `card/hooks.py`). It
+`card/materials.py`, `card/modules.txt`. Card is one Frappe app (`required_apps = ["erpnext"]`, `card/hooks.py`). It
 does not depend on HRMS (`AGENTS.md`).
 
 ## 1. Bounded areas
@@ -23,7 +23,7 @@ does not depend on HRMS (`AGENTS.md`).
 Column "Kind" is read from the JSON: **Submittable**, **Master**, **Child**, **Single**. Naming is the `autoname`
 value.
 
-| Area | DocType | Kind | Naming | Links to (ERPNext or CARD) |
+| Area | DocType | Kind | Naming | Links to (ERPNext or Card) |
 |---|---|---|---|---|
 | Master data | Card Equipment | Master, track_changes | `CEQ-{####}` | Company, Asset, Project (current), Employee (operator), Supplier, Customer, Cost Center, Card Equipment Make/Model/Type/Category |
 | Master data | Card Equipment Make, Model, Type, Category | Master | `CMK-`, `CEM-`, field name | Type links Asset Category |
@@ -52,7 +52,7 @@ The read-only **Equipment Downtime** report (`card/card/report/equipment_downtim
 `Stock Manager`) are read from the DocType permissions; the full role-by-action table is in
 [ROLE-ACTION-MATRIX.md](../governance/ROLE-ACTION-MATRIX.md).
 
-## 3. Hooks that tie CARD to ERPNext
+## 3. Hooks that tie Card to ERPNext
 
 From `card/hooks.py`:
 
@@ -69,19 +69,19 @@ From `card/hooks.py`:
 | `scheduler_events` daily | Card Equipment | `card.transfer.sync_equipment_locations_daily` | Daily location sync, runs only when Card Settings enables it (`card/transfer.py` module docstring) |
 | `override_doctype_dashboards` | Supplier, Asset, Project, Customer | `card.dashboards.*` | Connections tab entries only |
 
-CARD adds no `override_doctype_class`. It adds one Accounting Dimension, "Card Equipment" (`card/dimension.py`), created
+Card adds no `override_doctype_class`. It adds one Accounting Dimension, "Card Equipment" (`card/dimension.py`), created
 only by an explicit manual command, never by migrate.
 
-## 4. Where CARD stops and ERPNext starts
+## 4. Where Card stops and ERPNext starts
 
-| CARD owns | ERPNext owns |
+| Card owns | ERPNext owns |
 |---|---|
 | Which machine, where, on which dates (Equipment, Assignment, Transport) | Project, Cost Center, Location, Asset, Item masters |
 | What the machine did and what it is worth in a month (Monthly Card, Diesel Fill) | Purchase Invoice, Sales Invoice, Payment Entry, Journal Entry, GL Entry, VAT |
 | Reservation and audit of what was invoiced (GL Posting Log) | Stock Entry, Material Request, stock ledger |
 | Review and approval of needs, fitment and custody | Employee, Supplier, Customer masters |
 
-CARD creates standard documents through the Document API and links back to them (details in
+Card creates standard documents through the Document API and links back to them (details in
 [05-accounting-examples.md](05-accounting-examples.md)). It never inserts a GL Entry (`AGENTS.md`).
 
 ## 5. Not in the code (Planned)

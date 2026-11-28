@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea or enhancement for the CARD app
+description: Suggest an idea or enhancement for the Card app
 labels: ["enhancement"]
 body:
   - type: textarea

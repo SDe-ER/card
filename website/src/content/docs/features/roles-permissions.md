@@ -1,41 +1,41 @@
 ---
 title: Roles & Permissions
-description: The CARD roles, what each role can do, company isolation, field-level privacy of money values and separation of duties.
+description: The Card roles, what each role can do, company isolation, field-level privacy of money values and separation of duties.
 sidebar:
   order: 18
 ---
 
 ## Overview
 
-CARD adds its own roles on top of the standard ERPNext roles and uses Frappe's permission system for everything:
+Card adds its own roles on top of the standard ERPNext roles and uses Frappe's permission system for everything:
 DocType permissions, permission levels on fields, User Permissions and server-side permission hooks. The server
-checks every action; CARD never treats a hidden field or a hidden button as a permission, and it never widens a
+checks every action; Card never treats a hidden field or a hidden button as a permission, and it never widens a
 user's ERPNext rights. Postings and approvals run with the user's own rights.
 
 <!-- screenshot: roles-permissions-role-list -->
-![The CARD roles](../../../assets/screenshots/en/roles-permissions-role-list.webp)
-*The CARD roles*
+![The Card roles](../../../assets/screenshots/en/roles-permissions-role-list.webp)
+*The Card roles*
 
 ## Key concepts
 
 | Concept | Meaning |
 |---|---|
-| **CARD role** | A role created by CARD at install: Card Manager, Card User, Card Supervisor, Card Operator, Card Reviewer. |
-| **ERPNext role** | Standard roles CARD also uses: System Manager, Accounts Manager, Accounts User, Stock Manager, Stock User, Purchase User. |
+| **Card role** | A role created by Card at install: Card Manager, Card User, Card Supervisor, Card Operator, Card Reviewer. |
+| **ERPNext role** | Standard roles Card also uses: System Manager, Accounts Manager, Accounts User, Stock Manager, Stock User, Purchase User. |
 | **Permission level** | Fields at level 1 or 2 are readable or writable only by the roles granted that level. |
-| **Company isolation** | A user limited to some companies by Company User Permissions never reads or writes another company's CARD records. |
+| **Company isolation** | A user limited to some companies by Company User Permissions never reads or writes another company's Card records. |
 | **Own records** | An *if owner* right: the user acts only on records he created. |
 
 ## Features
 
-### The CARD roles
+### The Card roles
 
 | Role | Desk | Purpose |
 |---|---|---|
-| **Card Manager** | Yes | Runs CARD: equipment, assignments, transports, monthly cards, diesel, settings (read), monthly posting, approvals of equipment needs |
-| **Card User** | Yes | Daily data entry: equipment, monthly cards, transports and diesel fills (create and save, not submit); read-only catalog on CARD Mobile |
+| **Card Manager** | Yes | Runs Card: equipment, assignments, transports, monthly cards, diesel, settings (read), monthly posting, approvals of equipment needs |
+| **Card User** | Yes | Daily data entry: equipment, monthly cards, transports and diesel fills (create and save, not submit); read-only catalog on Card Mobile |
 | **Card Supervisor** | Yes | Site supervisor: daily logs, meter readings, equipment needs reviews, parts fitment, tool custody |
-| **Card Operator** | No | Operator: uses CARD Mobile only — his machines, his equipment needs requests and, where enabled, his own daily logs |
+| **Card Operator** | No | Operator: uses Card Mobile only — his machines, his equipment needs requests and, where enabled, his own daily logs |
 | **Card Reviewer** | Yes | Reviewer role for the approval workflow. Created on every site but granted to nobody, and not yet named in any DocType permission |
 
 :::note
@@ -63,7 +63,7 @@ Main DocTypes, level 0 rights (from the role and action matrix shipped with the 
 | Employee Tool Custody | System Manager, Card Manager, Stock Manager, Card Supervisor, Card User | System Manager, Card Manager, Stock Manager, Card Supervisor | Submit: same as write. Cancel: System Manager, Card Manager, Stock Manager |
 | Card Equipment Supplier / Customer | System Manager, Card Manager, Card User, Accounts Manager | System Manager, Card Manager | — |
 | Card Equipment Part (fitment) | System Manager, Card Manager, Card Supervisor | System Manager, Card Manager, Card Supervisor | — |
-| GL Posting Log | System Manager, Accounts Manager, Card Manager | Nobody (written by CARD only) | — |
+| GL Posting Log | System Manager, Accounts Manager, Card Manager | Nobody (written by Card only) | — |
 | Card Settings | System Manager, Accounts Manager, Card Manager | System Manager, Accounts Manager | — |
 
 Deleting is limited to System Manager on most DocTypes (Card Manager also on equipment needs and tool custody).
@@ -72,21 +72,21 @@ Deleting is limited to System Manager on most DocTypes (Card Manager also on equ
 
 | Action | Who may do it |
 |---|---|
-| Build and post the monthly draft invoices; open the CARD Monthly Posting page | Card Manager, System Manager |
+| Build and post the monthly draft invoices; open the Card Monthly Posting page | Card Manager, System Manager |
 | Approve an equipment needs review into draft Material Requests | Card Manager, System Manager (and Material Request create) — never the review's preparer |
 | Record the financial decision on a recharged transport | Accounts Manager — never the transport's creator, editor or submitter |
-| Accept a correction of an edited CARD draft invoice | Accounts Manager, System Manager, with a reason |
-| Link a hand-booked supplier invoice or a supplier accrual Journal Entry to CARD sources | Accounts Manager, Accounts User, System Manager |
+| Accept a correction of an edited Card draft invoice | Accounts Manager, System Manager, with a reason |
+| Link a hand-booked supplier invoice or a supplier accrual Journal Entry to Card sources | Accounts Manager, Accounts User, System Manager |
 | Bypass the period lock | The **Period lock override role** of Card Settings; every override is logged |
 | Change the diesel supplier / approve a diesel price exception / save a zero price / change transport prices | The roles named on the Advanced Permissions tab of Card Settings |
 | Refresh the supplier and customer registries | System Manager |
 
 ### Company isolation
 
-Every operational CARD record belongs to one company, and the server keeps companies apart:
+Every operational Card record belongs to one company, and the server keeps companies apart:
 
 - Records with a **Company** field follow the user's **Company User Permissions**, as everywhere in ERPNext.
-- CARD adds server-side permission hooks where the company comes from another record: an assignment belongs to its
+- Card adds server-side permission hooks where the company comes from another record: an assignment belongs to its
   equipment's company, a monthly card to its equipment's company, a transport to its project's company, an
   equipment needs review to its project's company, tool custody to its employees' company, a diesel fill to its
   company. They apply to lists, report views, link searches, counts, single reads, saves, submits and cancels, and
@@ -114,10 +114,10 @@ or receives no company-B value, and that nothing is written.
 | 2 | Financial: equipment cost center, Asset cost center, Asset purchase value, internal hourly rate, internal operating rate and its basis | System Manager, Card Manager, Accounts Manager | System Manager, Card Manager |
 
 - A change to a level 1 commercial field needs a new **Reason for commercial change**.
-- Frappe applies these levels to the form, the REST API, list and report views and exports. CARD also masks the
+- Frappe applies these levels to the form, the REST API, list and report views and exports. Card also masks the
   values of every field above level 0 in new change-history (Version) rows of Card Equipment, keeping who changed it
   and when.
-- Values CARD copies from the Asset to the equipment form contain only the fields the user may read.
+- Values Card copies from the Asset to the equipment form contain only the fields the user may read.
 - Dashboard figures that use the internal rate are hidden from users who cannot read level 2.
 - **Equipment Transport**: the cost decision, billing and recovery fields are level 1, readable by System Manager,
   Card Manager and Accounts Manager; nobody writes them on the form (they are set by the financial decision action).
@@ -143,16 +143,16 @@ Implemented today:
   **Monthly card approval rule** either warns and marks the card as approved by its own preparer (default) or refuses
   the submit. See [Monthly cards](/card/features/monthly-cards/#review-approval-and-separation-of-duties).
 
-### CARD Mobile access
+### Card Mobile access
 
-CARD Mobile opens for users with a portal role (Card Operator, Card Supervisor, Card Manager, System Manager) and an
+Card Mobile opens for users with a portal role (Card Operator, Card Supervisor, Card Manager, System Manager) and an
 Active Employee linked to the user; a Card User without a portal role opens only the catalog. See
-[CARD Mobile](/card/features/card-mobile/).
+[Card Mobile](/card/features/card-mobile/).
 
 ## Workflow
 
 1. Create the ERPNext users and, for operators, link each to an Active **Employee** (User ID).
-2. Give each user the CARD role of his job, plus the ERPNext roles he needs (for example Accounts Manager for
+2. Give each user the Card role of his job, plus the ERPNext roles he needs (for example Accounts Manager for
    accountants, Stock Manager for stores).
 3. Add **Company User Permissions** for users who work for some companies only.
 4. In Card Settings, set the **Period lock override role** and the roles of the Advanced Permissions tab.
@@ -160,6 +160,6 @@ Active Employee linked to the user; a Card User without a portal role opens only
 ## Related
 
 - [Configuration](/card/getting-started/configuration/)
-- [CARD Mobile](/card/features/card-mobile/)
+- [Card Mobile](/card/features/card-mobile/)
 - [Invoicing & posting](/card/features/invoicing-posting/)
 - [Equipment needs](/card/features/equipment-needs/)

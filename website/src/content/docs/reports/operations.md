@@ -99,7 +99,7 @@ no maintenance baseline and changes nothing.
 
 **Columns (one row per equipment):** Status (Consistent, Needs review, No meter readings), Equipment, Equipment name,
 Asset, Meter readings, First plausible reading, First reading date, Last plausible reading, Last reading date, Meter
-hours (differences only), CARD hours (submitted cards, same period), Difference %, Reading issues, Asset meter fields,
+hours (differences only), Card hours (submitted cards, same period), Difference %, Reading issues, Asset meter fields,
 Maintenance baseline.
 
 **Columns (every reading):** Equipment, Asset, Reading time, Meter reading, Hours since previous plausible reading,
@@ -108,7 +108,7 @@ Reading check, Source, Source record, Evidence.
 Each reading is classified as Plausible, Invalid (zero, negative or empty), Duplicate, Backward, Meter reset (restarts
 near zero), Impossible jump (more hours than elapsed time), or "Recorded hours equal the whole meter (cumulative):
 ignored". A row needs review when a reading has an issue, when the Asset's own meter fields differ from the last
-plausible reading by more than the allowed percentage, when CARD hours differ from the meter hours by more than the
+plausible reading by more than the allowed percentage, when Card hours differ from the meter hours by more than the
 allowed percentage, or when the Asset ID conflicts with its name or item.
 
 **Totals.** Tiles **Equipment** and **Needs review** (summary view) or **Readings** (detail view). The message

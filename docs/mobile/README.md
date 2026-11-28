@@ -1,15 +1,15 @@
-# CARD Mobile
+# Card Mobile
 
-CARD Mobile is the phone interface of CARD, served by the CARD app at `/cdms`. It is a Progressive
-Web App (PWA) built the same way as the Frappe HR mobile app (`/hrms`). CARD Desk stays the full
-management system; CARD Mobile covers the few actions people need on site.
+Card Mobile is the phone interface of Card, served by the Card app at `/cdms`. It is a Progressive
+Web App (PWA) built the same way as the Frappe HR mobile app (`/hrms`). Card Desk stays the full
+management system; Card Mobile covers the few actions people need on site.
 
-> **Status:** v4.1.0 is the **foundation** of CARD Mobile (sign-in, PWA, languages, operator
-> requests); in development, not released. The full phone app for CARD is planned from v4.2.0
+> **Status:** v4.1.0 is the **foundation** of Card Mobile (sign-in, PWA, languages, operator
+> requests); in development, not released. The full phone app for Card is planned from v4.2.0
 > (see [Roadmap](#roadmap)). Installation on real iPhone and Android devices has not been tested
 > yet (see [Device checklist](#device-checklist)).
 
-## How it fits into CARD
+## How it fits into Card
 
 | Part | Path | Role |
 |---|---|---|
@@ -20,21 +20,21 @@ management system; CARD Mobile covers the few actions people need on site.
 | Access | `card/mobile.py` | Who may open the app; `get_session_context` (GET) |
 | Service worker route | `card/pwa.py` | Serves `/cdms/sw.js` so its scope is `/cdms/` |
 | Routes and apps screen | `card/hooks.py` | `website_route_rules`, `page_renderer`, `add_to_apps_screen` |
-| Business endpoints | `card/materials.py` | Existing operator endpoints; CARD Mobile adds no business logic |
+| Business endpoints | `card/materials.py` | Existing operator endpoints; Card Mobile adds no business logic |
 
 Frappe HR registers its service worker at `/assets/hrms/frontend/sw.js`, so the worker's scope is
-`/assets/hrms/frontend/` and it never controls `/hrms`. CARD serves the same kind of worker at
+`/assets/hrms/frontend/` and it never controls `/hrms`. Card serves the same kind of worker at
 `/cdms/sw.js` through Frappe's `page_renderer` hook, so it controls `/cdms` and nothing wider.
 
 ## Access
 
 - Sign-in happens inside the app with the user's ERPNext account (Frappe `login`), so sessions and
   CSRF protection are Frappe's own.
-- The page opens for a signed-in user with a CARD portal role (Card Operator, Card Supervisor,
+- The page opens for a signed-in user with a Card portal role (Card Operator, Card Supervisor,
   Card Manager or System Manager). The app's screens also need an **Active Employee** linked to
   the user (`Employee.user_id`); otherwise the user sees a "not set up" screen.
-- Every call is checked again on the server by the CARD endpoint it reaches.
-- Apps screen: *Card* (Desk) is shown to users who can read any CARD Desk document (Card
+- Every call is checked again on the server by the Card endpoint it reaches.
+- Apps screen: *Card* (Desk) is shown to users who can read any Card Desk document (Card
   Equipment, Card Monthly Card, the supplier and customer registries, Equipment Transport, Project
   Diesel Fill, Equipment Needs Review, Employee Tool Custody) and is hidden from Website Users;
   *Card Mobile* is shown to users who may open `/cdms`. After signing in, Frappe shows its apps
@@ -49,9 +49,9 @@ Frappe HR registers its service worker at `/assets/hrms/frontend/sw.js`, so the 
 | New request (parts, consumables, tools) | ✓ | – | Done |
 | My requests and their status | ✓ | – | Done |
 | Profile, install hint, sign out | ✓ | ✓ | Done |
-| Supervisor review, request on behalf, custody | – | ✓ | Planned (needs CARD G2) |
+| Supervisor review, request on behalf, custody | – | ✓ | Planned (needs Card G2) |
 | Manager approvals | – | ✓ | Planned |
-| My tools in custody | ✓ | – | Planned (needs CARD G3) |
+| My tools in custody | ✓ | – | Planned (needs Card G3) |
 
 ## Roadmap
 
@@ -80,7 +80,7 @@ on real phones.
 Translations come from Frappe's translation system in the page boot. Arabic and Urdu are
 right-to-left; English, Bengali and Hindi left-to-right. Generic words (Home, Login, Quantity, …)
 use the translation context **Card Mobile** (`msgctxt "Card Mobile"` in `card/locale/*.po`), so
-CARD never overrides Frappe's or ERPNext's own translations. "Card" is never translated.
+Card never overrides Frappe's or ERPNext's own translations. "Card" is never translated.
 
 ## Development
 
@@ -90,7 +90,7 @@ yarn install          # installs frontend/ dependencies
 yarn dev              # Vite dev server that proxies the bench (frappe-ui plugin)
 ```
 
-Checks (also run by CI, job *CARD Mobile*):
+Checks (also run by CI, job *Card Mobile*):
 
 ```bash
 cd apps/card/frontend

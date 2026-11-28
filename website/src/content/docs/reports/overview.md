@@ -1,24 +1,24 @@
 ---
 title: Reports Overview
-description: How CARD reports work — company scope, filters, tree statements, print and PDF, who sees money — and the list of every CARD report.
+description: How Card reports work — company scope, filters, tree statements, print and PDF, who sees money — and the list of every Card report.
 sidebar:
   order: 1
 ---
 
 ## Overview
 
-CARD ships its reports as standard Frappe **Script Reports** in the **Card** module. Each report is read-only: it
+Card ships its reports as standard Frappe **Script Reports** in the **Card** module. Each report is read-only: it
 reads monthly cards, equipment, diesel fills, transports, needs reviews, custody records and — for users allowed to
 see them — ERPNext ledger rows, and it never creates, changes, links or posts anything. A report shows a point to
 review; it never corrects data by itself.
 
-Script reports read their data in bulk, which bypasses the per-document permission check of the Desk list. CARD
+Script reports read their data in bulk, which bypasses the per-document permission check of the Desk list. Card
 therefore scopes every report itself: by company, by the roles that may run it, by the documents the user may read,
 and by whether the user may see ledger figures. The rules are the same for every report and are described below.
 
 <!-- screenshot: reports-overview-sidebar -->
-![Reports in the CARD workspace](../../../assets/screenshots/en/reports-overview-sidebar.webp)
-*Reports in the CARD workspace*
+![Reports in the Card workspace](../../../assets/screenshots/en/reports-overview-sidebar.webp)
+*Reports in the Card workspace*
 
 ## Key concepts
 
@@ -57,7 +57,7 @@ Filters are defined in each report's JavaScript. Common patterns:
 - **Project** – an Autocomplete (`card.api.card_project_options`) listing the projects of the permitted companies,
   shown as `PROJ-0001: Project name`. It is not a Link filter, because Frappe would check the user's read right on
   Project, which operational roles do not have.
-- **Supplier / Customer** on the statements – a Link to the CARD party registry (**Card Equipment Supplier** /
+- **Supplier / Customer** on the statements – a Link to the Card party registry (**Card Equipment Supplier** /
   **Card Equipment Customer**) filtered by `card.api.card_suppliers_query` / `card_customers_query`: only parties
   with at least one monthly card in a permitted company.
 - **Period** – either **From date / To date** or **From month / From year / To month / To year** (the statements
@@ -87,8 +87,8 @@ Card, opened to the first level. Project and equipment rows are bold totals of t
 
 ### Who can see money
 
-- **Ledger figures** (opening balance, accrual entries, payments, closing balance, invoiced through CARD, invoices
-  outside CARD, payment-ledger settlement) are computed only for ledger readers of the report company. For other
+- **Ledger figures** (opening balance, accrual entries, payments, closing balance, invoiced through Card, invoices
+  outside Card, payment-ledger settlement) are computed only for ledger readers of the report company. For other
   users the figures are **removed on the server** — the columns, the row values and the summary tiles never reach the
   browser — and the report message says "Ledger balances are shown only to users with General Ledger access."
 - Some reports are purely financial and **refuse** a non-ledger reader: **Card Settlement Status**, **Equipment
@@ -104,7 +104,7 @@ Card, opened to the first level. Project and equipment rows are bold totals of t
 
 ### Currency
 
-Money columns are labelled with the **report company's default currency**. CARD converts nothing; every figure comes
+Money columns are labelled with the **report company's default currency**. Card converts nothing; every figure comes
 from documents of that company. **Equipment Consumption**, which spans several companies, labels each row with its
 own company's currency.
 
@@ -126,7 +126,7 @@ curl -s -G "https://<your-site>/api/method/frappe.desk.query_report.run" \
 |---|---|---|
 | Equipment Location History | Where each machine was, per period: project, workshop, storage, supplier or initial place. | [Operations](/card/reports/operations/) |
 | Equipment Downtime | Stopped days and hours of monthly cards by reason, responsible party, equipment, project, month or day. | [Operations](/card/reports/operations/) |
-| Equipment Meter Reconciliation | Hour-meter readings checked for plausibility and compared with CARD card hours. | [Operations](/card/reports/operations/) |
+| Equipment Meter Reconciliation | Hour-meter readings checked for plausibility and compared with Card card hours. | [Operations](/card/reports/operations/) |
 | Equipment Consumption | Stock issued to each machine plus non-stock items bought for it. | [Operations](/card/reports/operations/) |
 | Equipment Needs Summary | The consolidated list of submitted needs-review lines, merged by item. | [Operations](/card/reports/operations/) |
 | Repeat Equipment Requests | Items asked again for the same machine within the repeat window. | [Operations](/card/reports/operations/) |
@@ -138,17 +138,17 @@ curl -s -G "https://<your-site>/api/method/frappe.desk.query_report.run" \
 | Card Settlement Status | For every card of a party: the recognising document, what is paid and what remains. | [Parties and statements](/card/reports/parties-statements/) |
 | Equipment Diesel Analysis | Expected litres from hours against allocated litres, per equipment, project and month. | [Diesel and fuel](/card/reports/diesel-fuel/) |
 | Equipment Diesel Consumption | Allocated diesel litres and cost per equipment, project and month. | [Diesel and fuel](/card/reports/diesel-fuel/) |
-| Diesel Invoice Reconciliation | CARD diesel sessions matched with the suppliers' own purchase invoices. | [Diesel and fuel](/card/reports/diesel-fuel/) |
+| Diesel Invoice Reconciliation | Card diesel sessions matched with the suppliers' own purchase invoices. | [Diesel and fuel](/card/reports/diesel-fuel/) |
 | Transport Cost by Project | Company transport cost per project, with amounts the company does not pay shown apart. | [Transport and costs](/card/reports/transport-costs/) |
 | Operating Cost by Project | Diesel plus company transport cost per project. | [Transport and costs](/card/reports/transport-costs/) |
 | Transport Accounting Review | Submitted transports whose accounting still needs a person. | [Transport and costs](/card/reports/transport-costs/) |
 | Equipment Maintenance Cost | Purchase and material-issue lines tagged to equipment through the Card Equipment dimension. | [Maintenance and assets](/card/reports/maintenance-assets/) |
-| Asset Mapping Review | Every submitted Asset classified against CARD equipment for a decision. | [Maintenance and assets](/card/reports/maintenance-assets/) |
+| Asset Mapping Review | Every submitted Asset classified against Card equipment for a decision. | [Maintenance and assets](/card/reports/maintenance-assets/) |
 | Equipment Make Model Values | Free-text brand and model values grouped, to create make and model records. | [Maintenance and assets](/card/reports/maintenance-assets/) |
 | Equipment Partial Margin | Revenue minus partial costs per equipment and project. | [Accounting control](/card/reports/accounting-control/) |
 | Project Invoice Profitability | Revenue and purchase-invoice expenses per project, from submitted invoices. | [Accounting control](/card/reports/accounting-control/) |
 | Unbilled Card Work | Submitted cards that no invoice or linked journal entry recognises yet. | [Accounting control](/card/reports/accounting-control/) |
-| Equipment Expenses Without Equipment | Ledger lines on the CARD expense accounts without the Card Equipment dimension. | [Accounting control](/card/reports/accounting-control/) |
+| Equipment Expenses Without Equipment | Ledger lines on the Card expense accounts without the Card Equipment dimension. | [Accounting control](/card/reports/accounting-control/) |
 | Posting Source Integrity | Sources whose invoice link, posted flag and posting log disagree. | [Accounting control](/card/reports/accounting-control/) |
 
 ## Permissions

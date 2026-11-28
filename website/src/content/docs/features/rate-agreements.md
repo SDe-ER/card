@@ -16,7 +16,7 @@ Agreements exist so that a change of rate is a new, dated record instead of an e
 history of who agreed to pay what is kept.
 
 :::caution[Opt-in, not wired yet]
-Rate agreements can be created and submitted, but **nothing in CARD reads them yet**. Monthly cards, the monthly
+Rate agreements can be created and submitted, but **nothing in Card reads them yet**. Monthly cards, the monthly
 posting and transports keep using the rates on the equipment. Using agreements on cards will be a separate opt-in per
 company. Rate agreements are part of the current development line (after release v4.7.0) and open at
 `/app/card-rate-agreement`.
@@ -64,7 +64,7 @@ date. The check runs on save and again at submit under a company lock, so two ag
 cannot both pass.
 
 Agreements with different keys may overlap – for example one for an equipment type and one for a single machine of
-that type. CARD does not choose between them: when more than one agreement matches a machine, party and date, the
+that type. Card does not choose between them: when more than one agreement matches a machine, party and date, the
 lookup reports every match and refuses to pick one, so the user ends all but one.
 
 ### How an agreement is matched
@@ -103,7 +103,7 @@ Example (fictitious): rental 100% paid by the Company; diesel 60% by **Customer 
 
 ### Billing Basis master and default rates
 
-- A separate **Billing Basis** master does not exist in the current CARD. The billing basis is the **Rate type** of
+- A separate **Billing Basis** master does not exist in the current Card. The billing basis is the **Rate type** of
   the equipment (per hour, per day, per month), with the **Day billing basis** for per-day rates (see
   [Monthly Cards](/card/features/monthly-cards/)).
 - Default rates per equipment category or type in Card Settings are **planned**, not built. Today each machine

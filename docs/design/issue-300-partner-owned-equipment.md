@@ -58,14 +58,14 @@ on 2026-11-16. This inspection did not run the tests.
 | Piece (file and function on the branch) | Verdict | Reason |
 |---|---|---|
 | `card/constants.py` `OWNER_MODEL_MANAGED`, `OWNER_MODEL_SELF`, `OWNER_MODELS`; `card_equipment.json` fields `owner_model`, `owner_entitlement_from`; `card_equipment.py` `validate_third_party_owner` | Reusable with changes | The field pattern is sound: both fields are commercial fields at permlevel 1 with a change reason. The validation forces the partner to be a Supplier. `SETTLEMENT-PARTY-DESIGN.md` section 4 records that the owner corrected this assumption. Keep the fields, change the party rule after decision D3. |
-| `card/constants.py` `allowed_directions`: a partner machine can be rented out to a customer | Not reusable as is | A rented-out card bills the customer only. The partner then has no ERPNext document, and the entitlement exists only in a CARD report. That is a parallel record of a payable. The sub-rental direction already gives both invoices (section 2). |
+| `card/constants.py` `allowed_directions`: a partner machine can be rented out to a customer | Not reusable as is | A rented-out card bills the customer only. The partner then has no ERPNext document, and the entitlement exists only in a Card report. That is a parallel record of a payable. The sub-rental direction already gives both invoices (section 2). |
 | `card_equipment.py` `validate_rental_direction` change: a partner machine can wait for its customer rate; `card_monthly_card.py` `before_submit` rate check | Reusable as is, as a separate change | It is independent of the entitlement. It changes submit behavior for all customer-billing cards, so it needs its own tests and its own registry row. |
 | `card/api.py` `_party_cards` and `refresh_supplier`; `equipment_supplier_statement.py` and `equipment_suppliers_summary.py` filter `card_direction != DIR_RENTED_OUT` | Not reusable | These follow from the rented-out direction above. Without that direction they do nothing. |
 | `Card Owner Revenue Approval` DocType; `card/owner_statement.py` `card_approvals`, `amendment_chains`, `card_revenue`; field `Card Adjustment Type.owner_revenue` | Reusable with changes, later | The customer approval of an addition row is a real event and it does not depend on the party model. It is needed only for the revenue-share model (decision D2). It adds a DocType and permissions, so it is not part of the first step. |
 | `Card Owner Deduction` DocType (submittable); `card_owner_deduction.py` `_refuse_automatic_deduction`, `_refuse_owner_ledger_source`, `_refuse_over_allocation` | Not reusable as built | It records a charge to the partner outside ERPNext. The double-charge checks exist because the same amount can also be in the ledger. A charge to a partner is an ERPNext document on the partner's ledger (section 3.3). The check ideas stay useful as report warnings. `_refuse_over_allocation` uses raw SQL with parameters (not verified beyond the grep). |
 | `card/owner_statement.py` `owner_ledger`, `classify`, `_set_reversals` | Reusable with changes | They read `GL Entry` with `frappe.get_all`, and the report calls them only after `can_view_ledger`. The classification (payment, recharge, reclass, transfer, accrual, adjustment) is the core of a partner statement. They filter by a Supplier party. They must follow decision D3. |
 | `card/owner_statement.py` `cost_center_expenses`, `cost_center_days`, `cost_center_share`, `deductible_expense_accounts`, `excluded_expense_accounts`, `rent_expense_accounts` | Reusable with changes | They share the expenses of a cost center between machines by working days. That is an estimate. The `Card Equipment` accounting dimension gives an exact tag per ledger row (section 2). Keep `excluded_expense_accounts` (it removes diesel and payroll accounts). Replace the working-day share when the dimension is on. `Card Equipment.cost_center` is at permlevel 2 on `main`. The branch does not show a permlevel 2 check for these figures (not verified). |
-| `card/owner_statement.py` `wages_by_card`, `salary_slips`; `crusher_owner_statement.py` `can_view_wages` | Not reusable without decision D4 | They read `Salary Slip` gross pay in bulk and assign it to machines. `can_view_wages` is a careful gate (role read without owner limit, no User Permission on Employee or Salary Slip, company permitted). However, CARD reading payroll is a new data flow the owner has not approved. HRMS is also not a declared dependency of CARD (`AGENTS.md`: "Depends on `frappe` and `erpnext` only"). |
+| `card/owner_statement.py` `wages_by_card`, `salary_slips`; `crusher_owner_statement.py` `can_view_wages` | Not reusable without decision D4 | They read `Salary Slip` gross pay in bulk and assign it to machines. `can_view_wages` is a careful gate (role read without owner limit, no User Permission on Employee or Salary Slip, company permitted). However, Card reading payroll is a new data flow the owner has not approved. HRMS is also not a declared dependency of Card (`AGENTS.md`: "Depends on `frappe` and `erpnext` only"). |
 | `card/owner_statement.py` `family_members`, `family_of`; field `Card Equipment Supplier.settlement_family` (Link to Supplier Group) | Not reusable now | A family settlement is a business rule the owner has not confirmed. It reuses Supplier Group for a second meaning. Defer (section 7). |
 | `card/owner_statement.py` `build_statement`, `apply_recorded`, `period`, `month_label`; `crusher_owner_statement.py` `execute`, `build_rows`, `build_summary`, `statement_message` | Reusable with changes | The structure is sound: `resolve_company` first, then `show_ledger` and `show_wages` flags, and a `complete` flag per row. It has no card money level check, because it was written before FR-179 added `role_reads_money` to the supplier reports. Add that check. |
 | `crusher_owner_statement/owner_statement_pdf.py` (POST endpoint, `frappe.has_permission(report.ref_doctype, "print")`, `resolve_company`) | Reusable with changes, last | It follows `equipment_supplier_statement/statement_pdf.py`. Build it after the statement is stable. |
@@ -74,17 +74,17 @@ on 2026-11-16. This inspection did not run the tests.
 
 ## 2. Standard-first assessment
 
-The question: which standard ERPNext mechanism can represent a partner's share before any CARD code?
+The question: which standard ERPNext mechanism can represent a partner's share before any Card code?
 
 | Need | Standard mechanism | Assessment |
 |---|---|---|
 | The partner as a party | **Supplier** | Works today. The partner machine names the Supplier in `Card Equipment.supplier`. Valid when the company owes the partner a payable. If the accountant treats the partner's balance as an owner current account instead, this option does not apply (decision D3). |
-| The entitlement as a fixed rental of the machine | **Purchase Invoice** for the rental, built as a draft by CARD | Works today with no new code. Set the partner machine to the sub-rental direction with a supplier rate. `card/gl/posting.py` builds the draft Purchase Invoice for the partner and the draft Sales Invoice for the customer. A person submits both. |
-| An advance to the partner | **Payment Entry** on the payment date (advance to a Supplier), then Payment Reconciliation | Standard ERPNext. CARD creates none. Behavior not verified against the installed ERPNext source. |
-| A cost or a salary charged to the partner | A **Purchase Invoice return (debit note)** on the partner, or a **Journal Entry** with the Supplier party as an exception with a written reason | Standard ERPNext. The charge then is in the partner's ledger once. CARD creates none. Not verified against the installed ERPNext source. |
+| The entitlement as a fixed rental of the machine | **Purchase Invoice** for the rental, built as a draft by Card | Works today with no new code. Set the partner machine to the sub-rental direction with a supplier rate. `card/gl/posting.py` builds the draft Purchase Invoice for the partner and the draft Sales Invoice for the customer. A person submits both. |
+| An advance to the partner | **Payment Entry** on the payment date (advance to a Supplier), then Payment Reconciliation | Standard ERPNext. Card creates none. Behavior not verified against the installed ERPNext source. |
+| A cost or a salary charged to the partner | A **Purchase Invoice return (debit note)** on the partner, or a **Journal Entry** with the Supplier party as an exception with a written reason | Standard ERPNext. The charge then is in the partner's ledger once. Card creates none. Not verified against the installed ERPNext source. |
 | Costs tagged to one machine | **Accounting Dimension** `Card Equipment` (`card/dimension.py` `ensure_card_equipment_dimension`) | Exists in the app. Off by default: `Card Settings.enable_card_equipment_dimension` (`dimension_switched_on`). When on, each ledger row can carry the machine. This is the exact way to read "costs of this machine". |
 | Costs of a site or a job | **Cost Center** and **Project** | In use: `card/gl/posting.py` `card_cost_center`. A cost center often serves several machines, so it gives the cost of a machine only by an estimate. Use it as a fallback and label the figure "estimated". |
-| The partner statement | **Equipment Supplier Statement** (CARD) and the standard **General Ledger** and **Accounts Payable** reports | For the fixed rental model these already show card net, invoices, payments and balance for the partner as a Supplier. |
+| The partner statement | **Equipment Supplier Statement** (Card) and the standard **General Ledger** and **Accounts Payable** reports | For the fixed rental model these already show card net, invoices, payments and balance for the partner as a Supplier. |
 | **Shareholder** | Not applicable | The Shareholder records of ERPNext describe shares in the company (not verified against the installed source). A partner owns a machine, not a share of the company. `SETTLEMENT-PARTY-DESIGN.md` section 1 states the same rule: no Shareholder record and no equity account follows from a family relation or from machine ownership. |
 
 Conclusion:
@@ -107,7 +107,7 @@ REASON_FOR_CUSTOM=No standard ERPNext document computes "customer revenue of a m
 | Agreement with the partner | A rate per hour, day or month | The customer revenue of the machine minus agreed deductions |
 | Entitlement source | The supplier side of the submitted cards | The customer side of the submitted cards minus costs |
 | ERPNext document | Purchase Invoice per month (exists) | A document the accountant books from the computed figure (decision D3) |
-| New CARD code | None | The read-only statement of section 3.4 |
+| New Card code | None | The read-only statement of section 3.4 |
 
 Model A is the default. Model B is used only for a machine whose agreement requires it. Field `owner_model` from
 pull request 225 can carry this choice after decision D2. Its two values on the branch ("Managed partner",
@@ -138,7 +138,7 @@ Model A, per partner and month:
 
 1. Entitlement = sum of `Card Monthly Card.net_amount` of the partner's submitted cards (supplier side).
 2. Charges and payments = the partner's ledger rows in ERPNext.
-3. Balance = the ERPNext payable balance of the partner. CARD shows it and never stores it.
+3. Balance = the ERPNext payable balance of the partner. Card shows it and never stores it.
 
 Model B, per partner machine and month:
 
@@ -153,7 +153,7 @@ Model B, per partner machine and month:
    lists such pairs as a warning for the accountant. It does not resolve them.
 
 The computed entitlement of model B is information. It becomes a payable only when a person books a standard ERPNext
-document for it. CARD never writes a ledger row (`card/tests/test_gl_neutrality.py` protects this rule on `main`).
+document for it. Card never writes a ledger row (`card/tests/test_gl_neutrality.py` protects this rule on `main`).
 
 VAT: the partner's entitlement carries input VAT only on a Purchase Invoice with a valid tax invoice from the
 partner. The treatment for a partner who issues no invoice is an accountant question
@@ -172,7 +172,7 @@ filters on that company. A machine, card or ledger row of a different company is
 | Machine costs | `GL Entry` | Ledger gate `can_view_ledger(company)`, and read on permlevel 2 of `Card Equipment` (the cost fields of a machine are at level 2, `card/field_privacy.py`) | Removed with `strip_ledger`. The row is marked "incomplete". |
 | Partner ledger: invoices, charges, advances, payments, balance | `GL Entry` (or `Payment Ledger Entry`) on the partner's party | Ledger gate | Removed with `strip_ledger`. Notice from `ledger_notice()`. |
 | Computed entitlement of model B | Derived from card amounts and machine costs | Card money level and ledger gate, both | Not shown |
-| Salaries | Not read by CARD | — | See 3.5 |
+| Salaries | Not read by Card | — | See 3.5 |
 
 Rules for all figures:
 
@@ -185,7 +185,7 @@ Rules for all figures:
 
 ### 3.5 Salaries
 
-CARD does not read `Salary Slip`, `Salary Structure Assignment` or any payroll record in this design.
+Card does not read `Salary Slip`, `Salary Structure Assignment` or any payroll record in this design.
 
 The statement shows this instead:
 
@@ -194,10 +194,10 @@ The statement shows this instead:
 - Machine costs exclude payroll expense accounts. On a machine with one operator, a payroll total per machine equals
   one person's salary. The exclusion prevents that leak. Reuse `excluded_expense_accounts` from the branch, without
   its read of `Salary Component Account` if HRMS is absent.
-- The statement prints a fixed note: "Wages are not computed by CARD. Wages charged to the partner are shown only when
+- The statement prints a fixed note: "Wages are not computed by Card. Wages charged to the partner are shown only when
   they are booked on the partner's ledger."
 
-If the owner later wants CARD to compute wages per machine, that is decision D4, with the `can_view_wages` gate of
+If the owner later wants Card to compute wages per machine, that is decision D4, with the `can_view_wages` gate of
 pull request 225 as the minimum.
 
 ### 3.6 Switches
@@ -233,7 +233,7 @@ only what `Card Equipment.supplier` ("Lessor / Owner") records today.
 | Gates | `partner_equipment_count`: as `equipment_count` today. `partner_net`: card money level; add the key to the `strip_money` call in the same file. Company: the `resolve_company` call that exists. Ledger columns: not touched. |
 | Accounting effect | None. Read-only. No posting code changes. |
 | Permission effect | None. Same report roles (System Manager, Card Manager, Card User, Accounts Manager in `equipment_suppliers_summary.json`). The new setting is at permlevel 1 as the other fields of the table. |
-| Files | `card/card/doctype/card_company_settings/card_company_settings.json` (one field); `card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py` and `.js`; `card/locale/main.pot` and `ar.po` (CARD strings only); `CHANGELOG.md`; `docs/governance/FEATURE-REGISTRY.md` (new FR number); website "What's new" (English and Arabic) and the generated reference pages |
+| Files | `card/card/doctype/card_company_settings/card_company_settings.json` (one field); `card/card/report/equipment_suppliers_summary/equipment_suppliers_summary.py` and `.js`; `card/locale/main.pot` and `ar.po` (Card strings only); `CHANGELOG.md`; `docs/governance/FEATURE-REGISTRY.md` (new FR number); website "What's new" (English and Arabic) and the generated reference pages |
 | Tests | New `card/tests/test_partner_equipment_split.py`: (1) off = columns and rows equal to the baseline; (2) on = count and net are correct for a mix of rented and partner machines; (3) a user without the card money level gets no `partner_net` key in any row; (4) a user restricted to a second company gets a refusal for the first company; (5) company A on and company B off behave independently. Update `test_settings_layout.py` and `test_settings_wiring.py` for the new field. Run `test_report_access.py`, `test_card_money_privacy.py`, `test_baseline_regression.py`, `test_gl_neutrality.py`. |
 | Migration | One new column in a child table, default 0. No patch. A second migrate changes nothing. |
 | Rollback | Turn the setting off, or revert the commit. No data to restore. |
@@ -252,7 +252,7 @@ Limits of the slice, stated for the owner:
 | D1 | Reopen issue 300? | (a) Reopen for the slice of section 4 only. (b) Keep deferred. | Decided 2026-11-25 for the slice (owner instruction, relayed). The label on the issue still says deferred: the owner updates it. |
 | D2 | How is a partner paid? | (a) A fixed rental rate per machine. (b) The customer revenue of the machine minus costs. (c) Both, chosen per machine. | (a) as the rule: it works today with standard invoices. (c) only if a real agreement requires (b). |
 | D3 | What is the partner in the books? | (a) A Supplier with a payable balance. (b) An owner current account without a party (assumptions A1 to A5 of `SETTLEMENT-PARTY-DESIGN.md`). | The accountant decides. (a) for a partner outside the company who receives payments. No code for (b) before the accountant confirms A1 to A5. |
-| D4 | Salaries charged to a partner | (a) The accountant books the charge in ERPNext. CARD shows the booked line and reads no payroll. (b) CARD reads salary slips and computes wages per machine for users with full payroll access. | (a). |
+| D4 | Salaries charged to a partner | (a) The accountant books the charge in ERPNext. Card shows the booked line and reads no payroll. (b) Card reads salary slips and computes wages per machine for users with full payroll access. | (a). |
 | D5 | Tag costs per machine in the ledger (turn on the `Card Equipment` accounting dimension)? | (a) Yes, after a backup and a rehearsal on a test copy. (b) No, use cost centers and accept estimated figures. | (a). It is needed for model B and useful without it. It is a separate approved operation. |
 | D6 | Who can open a partner statement (later phase)? | (a) System Manager, Card Manager, Accounts Manager. (b) Also Card User. | (a). |
 
@@ -260,7 +260,7 @@ Limits of the slice, stated for the owner:
 
 | Risk | Effect | Control |
 |---|---|---|
-| A computed entitlement is read as a payable | A partner is paid from a CARD report and not from the ledger | The statement labels the figure "computed, not booked" and shows the ERPNext balance next to it. Payment stays a Payment Entry by a person. |
+| A computed entitlement is read as a payable | A partner is paid from a Card report and not from the ledger | The statement labels the figure "computed, not booked" and shows the ERPNext balance next to it. Payment stays a Payment Entry by a person. |
 | Double count: a cost tagged to the machine and also charged to the partner | The partner is charged twice | The statement warns on such pairs (3.3 step 5). The accountant resolves them. |
 | Salary leak through cost totals | One operator's pay is visible to a user without payroll access | Payroll accounts are excluded from machine costs (3.5). A test with one operator on one machine. |
 | Cross-company read | A user sees a partner or a balance of a second company | `resolve_company` and a company filter on each query. Cross-company tests for each new read, as in `test_report_access.py`. |
@@ -272,8 +272,8 @@ Limits of the slice, stated for the owner:
 
 ## 7. Out of scope
 
-- Any ledger posting, payment or settlement by CARD for a partner.
-- Reading payroll data in CARD.
+- Any ledger posting, payment or settlement by Card for a partner.
+- Reading payroll data in Card.
 - Shareholder records, equity accounts and owner current accounts (accountant, `SETTLEMENT-PARTY-DESIGN.md`).
 - Several partners on one machine with shares.
 - Family settlement groups (`settlement_family`).

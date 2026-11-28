@@ -65,7 +65,7 @@ first save.
 ### Totalizer check
 
 **Meter details** holds the **Opening totalizer** and **Closing totalizer** (the cumulative drums), the opening and
-closing photo times and the photo location. An unreadable last drum may be written as `?`. CARD compares the session
+closing photo times and the photo location. An unreadable last drum may be written as `?`. Card compares the session
 with the totalizer movement (tolerance 1 litre) and sets **Totalizer check**:
 
 | Value | Meaning |
@@ -120,7 +120,7 @@ The company price comes from Card Settings, tab **Diesel Settings**:
 - Without a schedule row for the date, the company's **Diesel unit price (per litre)** in its company settings row
   applies. While a company has a schedule, its price can change only by a new dated row.
 
-A new or backdated schedule row never reprices submitted fills; CARD tells you how many submitted fills of the company
+A new or backdated schedule row never reprices submitted fills; Card tells you how many submitted fills of the company
 are on or after its date.
 
 ### Price snapshot
@@ -132,7 +132,7 @@ snapshot is kept whenever the price is kept and never changes after submit.
 ### Price exceptions
 
 A user with the **Diesel price exception role** (default *Accounts Manager*) may tick **Price exception**, type
-another price and give an **Exception reason**. CARD stamps **Exception by** and **Exception on**, keeps the company
+another price and give an **Exception reason**. Card stamps **Exception by** and **Exception on**, keeps the company
 price it replaced and logs the change.
 
 | Action | Rule |
@@ -194,7 +194,7 @@ Manager or System Manager with a server command, with a dry run by default:
   historical invoice price waits as *Needs Review* until the price exception role approves it;
 - the import never approves, submits or posts. The source fields are set by the import only and cannot be typed.
 
-Imported fills are never posted by CARD: the supplier's own invoice is the Purchase Invoice.
+Imported fills are never posted by Card: the supplier's own invoice is the Purchase Invoice.
 
 ### Meter extraction
 

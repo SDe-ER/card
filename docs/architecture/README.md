@@ -1,6 +1,6 @@
-# CARD architecture pack
+# Card architecture pack
 
-**Status: documentation only.** Epic #40 (CARD as an HRMS-grade equipment operations platform) and issue #54 (HRMS
+**Status: documentation only.** Epic #40 (Card as an HRMS-grade equipment operations platform) and issue #54 (HRMS
 v16 parity audit and global acceptance suite) ask for a set of architecture documents. This directory holds them.
 Nothing here changes code, data, permissions or accounting. Owner decision 2026-11-24: #54 is merged into #40 and
 closed; its deliverables and the owner's decisions per issue are in [08-roadmap.md](08-roadmap.md) sections 4 and 5.
@@ -18,11 +18,11 @@ host or tax number appears in this pack.
 
 | Requested document (source) | File | Notes |
 |---|---|---|
-| Domain map (#40 delivery) | [01-domain-map.md](01-domain-map.md) | DocTypes, how they link, and where CARD stops and ERPNext starts |
+| Domain map (#40 delivery) | [01-domain-map.md](01-domain-map.md) | DocTypes, how they link, and where Card stops and ERPNext starts |
 | State transitions (#40 delivery) | [02-state-transitions.md](02-state-transitions.md) | One section per DocType that has a lifecycle |
 | Source-of-truth matrix (#40 delivery, #54 acceptance) | [03-source-of-truth-matrix.md](03-source-of-truth-matrix.md) | One owner per fact, and what is derived |
 | Localization matrix (#40 principle 3) | [04-localization-matrix.md](04-localization-matrix.md) | Language, currency, tax, units, time, direction |
-| Accounting examples (#40 delivery) | [05-accounting-examples.md](05-accounting-examples.md) | Which ERPNext documents CARD creates, with example lines. CARD never writes GL |
+| Accounting examples (#40 delivery) | [05-accounting-examples.md](05-accounting-examples.md) | Which ERPNext documents Card creates, with example lines. Card never writes GL |
 | Risk register (#54 acceptance) | [06-risk-register.md](06-risk-register.md) | Migration, accounting, permission and data risks |
 | International test matrix (#54 requirements) | [07-international-test-matrix.md](07-international-test-matrix.md) | What exists, what is missing |
 | Phased roadmap (#40 delivery, #54 acceptance) | [08-roadmap.md](08-roadmap.md) | Maps open issues to the go-live phases of #118 |

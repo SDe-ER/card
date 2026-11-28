@@ -18,7 +18,7 @@ the cancel-with-reason action and the dashboard figures.
 |---|---|---|
 | GET | `card.card.doctype.card_monthly_card.card_monthly_card.get_card_context` | Projects and days of a machine in a month. |
 | POST | `card.daily_log_generation.generate_monthly_cards` | Create or update draft cards from approved daily logs. |
-| POST | `card.cancel_reason.cancel_with_reason` | Cancel a CARD transaction and store the reason. |
+| POST | `card.cancel_reason.cancel_with_reason` | Cancel a Card transaction and store the reason. |
 | POST | `card.card_value.supplier_cost_last_month` | Number card: supplier rental cost of last month. |
 | POST | `card.card_value.customer_value_last_month` | Number card: customer operating value of last month. |
 | POST | `card.card_value.internal_value_last_month` | Number card: internal operating value of last month. |

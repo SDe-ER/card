@@ -18,7 +18,7 @@ sidebar:
 | GET | `card.api.get_asset_prefill` | القيم التي يأخذها نموذج المعدة من أصل معتمد. |
 | POST | `card.api.create_equipment_from_asset` | إنشاء معدة (أو تعبئتها مسبقًا) من أصل معتمد. |
 | GET | `card.api.available_assets_query` | استعلام ربط: الأصول المعتمدة غير المربوطة بمعدة بعد. |
-| GET | `card.api.get_only_company` | الشركة التي يأخذها نموذج CARD الجديد إذا كان المستخدم يرى شركة واحدة. |
+| GET | `card.api.get_only_company` | الشركة التي يأخذها نموذج Card الجديد إذا كان المستخدم يرى شركة واحدة. |
 | GET | `card.card.doctype.card_equipment.card_equipment.get_shift_heatmap` | ساعات التشغيل اليومية لكل وردية. |
 | GET | `card.card.doctype.card_equipment.card_equipment.get_unit_integrity_issues` | السجلات المخالفة لقواعد الوحدات. |
 | POST | `card.card.doctype.card_equipment.card_equipment.resync_unit_component_flag` | إعادة ضبط علامة «مكوّن وحدة» لقطعة واحدة. |
@@ -109,7 +109,7 @@ curl -s -G "https://<your-site>/api/method/card.api.available_assets_query" \
 
 `GET /api/method/card.api.get_only_company`
 
-الشركة التي يملؤها نموذج CARD الجديد إذا كان المستخدم يستطيع عرض شركة واحدة بالضبط؛ وإلا `null`. ويبقى الحقل قابلًا
+الشركة التي يملؤها نموذج Card الجديد إذا كان المستخدم يستطيع عرض شركة واحدة بالضبط؛ وإلا `null`. ويبقى الحقل قابلًا
 للتعديل.
 
 **الصلاحية:** أي مستخدم مسجل الدخول؛ وتعيد `null` دون صلاحية قراءة أو اختيار على الشركة.

@@ -7,7 +7,7 @@ sidebar:
 
 ## Overview
 
-Some machines only work together: a mobile crusher and the generator that powers it, for example. CARD records such
+Some machines only work together: a mobile crusher and the generator that powers it, for example. Card records such
 a pair as a **unit** — one Card Equipment record that lists its pieces as **components**. The unit stays **one
 equipment on its monthly card**, so it is priced and billed once; the component table keeps the dated history of
 which pieces were inside it.

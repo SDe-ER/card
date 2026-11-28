@@ -1,14 +1,14 @@
 ---
-title: CARD Mobile
-description: The CARD phone web app at /cdms — who can open it, its screens, the operator request flow, the catalog and installation on a phone.
+title: Card Mobile
+description: The Card phone web app at /cdms — who can open it, its screens, the operator request flow, the catalog and installation on a phone.
 sidebar:
   order: 17
 ---
 
 ## Overview
 
-**CARD Mobile** is the phone interface of CARD. It is a Progressive Web App (PWA) served by the CARD app itself at
-`/cdms`, built the same way as the Frappe HR mobile app. CARD Desk stays the full management system; CARD Mobile
+**Card Mobile** is the phone interface of Card. It is a Progressive Web App (PWA) served by the Card app itself at
+`/cdms`, built the same way as the Frappe HR mobile app. Card Desk stays the full management system; Card Mobile
 covers the actions people need on site, with the same accounts, the same data and the same server checks.
 
 The current release covers the operator side of [equipment needs](/card/features/equipment-needs/): an operator
@@ -22,7 +22,7 @@ Installation on real iPhone and Android phones has not been tested yet. Device s
 those tests on an HTTPS site.
 :::
 
-*CARD Mobile home screen*
+*Card Mobile home screen*
 
 ## Key concepts
 
@@ -33,7 +33,7 @@ those tests on an HTTPS site.
 | **Portal role** | Card Operator, Card Supervisor, Card Manager or System Manager. Needed to open the request screens. |
 | **Active Employee** | An ERPNext Employee with status Active whose **User ID** is the user. Needed for the request screens. |
 | **Catalog viewer** | A Card User without a portal role. He opens only the catalog and his profile. |
-| **No duplicate logic** | CARD Mobile calls CARD's existing server methods; every call is checked again on the server. |
+| **No duplicate logic** | Card Mobile calls Card's existing server methods; every call is checked again on the server. |
 
 ## Features
 
@@ -62,7 +62,7 @@ those tests on an HTTPS site.
   equipment status is «منتهية» Ended), and those on whose monthly card (draft or submitted) he is the operator for
   the current month. Each machine shows its current project. When there is none: *No equipment is assigned to you this month.*
 - **My requests** — the number of requests, with a *Pending* badge while some are not yet approved or rejected.
-- **Equipment Needs Review** — for supervisors and managers, a link to the review in CARD Desk.
+- **Equipment Needs Review** — for supervisors and managers, a link to the review in Card Desk.
 
 ### New request
 
@@ -78,8 +78,8 @@ quantity, and an item without a confirmed fit for the machine needs a reason (*W
 fit?*). After sending, the app opens **My requests** with the message *Your request was sent to the supervisor.*
 
 <!-- screenshot: card-mobile-new-request -->
-![CARD Mobile requests](../../../assets/screenshots/en/card-mobile-new-request.webp)
-*CARD Mobile requests*
+![Card Mobile requests](../../../assets/screenshots/en/card-mobile-new-request.webp)
+*Card Mobile requests*
 
 ### My requests
 
@@ -118,14 +118,14 @@ The user's **Employee**, **Company** and **User**, the install hint (see below) 
 
 Translations come from Frappe's translation system in the page boot. Arabic and Urdu are shown right to left;
 English, Bengali and Hindi left to right. Generic words (Home, Quantity, Logout…) use the translation context
-*Card Mobile*, so CARD never overrides Frappe's or ERPNext's own translations. The app name is CARD in every
+*Card Mobile*, so Card never overrides Frappe's or ERPNext's own translations. The app name is Card in every
 language. See [Languages](/card/features/languages/).
 
 ### Install on a phone
 
 - **Android (Chrome)** — when the browser offers it, the Profile screen shows **Install the app**.
 - **iPhone (Safari)** — the Profile screen shows the hint *On iPhone, tap Share, then Add to Home Screen.*
-- Once installed, the app opens standalone with the name **CARD Mobile** (short name **CARD**) and the CARD icon.
+- Once installed, the app opens standalone with the name **Card Mobile** (short name **Card**) and the Card icon.
   The hint is hidden when the app already runs installed.
 
 The web app manifest, app icons and iPhone home-screen settings are included. The service worker is served at
@@ -154,7 +154,7 @@ Added after release v4.7.0. An operator opens **Daily logs** from the bottom bar
   **Create corrected draft**, which repeats only that step. The server refuses a second correction of the same log.
 - If someone else changed the log in the meantime, the screen shows a short message and asks to reload.
 
-Supervisor verification and manager approval stay in CARD Desk.
+Supervisor verification and manager approval stay in Card Desk.
 
 ### Planned screens
 
@@ -171,13 +171,13 @@ Planned, not implemented:
 | Suppliers, costs, reports and notifications | By role |
 
 :::note[Operator web page]
-Before CARD Mobile, operators used the server-rendered page `/equipment-needs` ("My equipment needs"). It is still
+Before Card Mobile, operators used the server-rendered page `/equipment-needs` ("My equipment needs"). It is still
 available and uses the same request logic.
 :::
 
 ## Permissions
 
-| Role | CARD Mobile access |
+| Role | Card Mobile access |
 |---|---|
 | Card Operator | Full app with an Active Employee: his machines, new requests, his requests |
 | Card Supervisor, Card Manager, System Manager | Full app with an Active Employee, plus a link to the review in Desk |
@@ -191,4 +191,4 @@ Every request is checked again on the server: an operator sees only his own requ
 - [Equipment needs](/card/features/equipment-needs/)
 - [Tool custody](/card/features/tool-custody/)
 - [Roles & permissions](/card/features/roles-permissions/)
-- [Installation — build CARD Mobile](/card/getting-started/installation/#build-card-mobile)
+- [Installation — build Card Mobile](/card/getting-started/installation/#build-card-mobile)

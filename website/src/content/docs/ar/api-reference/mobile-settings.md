@@ -1,22 +1,22 @@
 ---
 title: واجهة API للتطبيق والإعدادات
-description: نقاط نهاية جلسة CARD Mobile، وكتالوج قطع الغيار وتوافقها، وسجل تغييرات الإعدادات المقيّد بالشركة.
+description: نقاط نهاية جلسة Card Mobile، وكتالوج قطع الغيار وتوافقها، وسجل تغييرات الإعدادات المقيّد بالشركة.
 sidebar:
   order: 9
 ---
 
 ## نظرة عامة
 
-يستخدم **CARD Mobile** (`/cdms`) تسجيل الدخول والجلسة والحماية من CSRF في Frappe كما يستخدمها Desk، ويستدعي نقاط النهاية
+يستخدم **Card Mobile** (`/cdms`) تسجيل الدخول والجلسة والحماية من CSRF في Frappe كما يستخدمها Desk، ويستدعي نقاط النهاية
 نفسها التي يستدعيها أي عميل آخر؛ وتحتفظ كل نقطة نهاية بفحوص صلاحياتها. وتسرد هذه الصفحة نقاط النهاية التي لا يستخدمها إلا
-التطبيق والكتالوج، إضافةً إلى تجاوزات CARD لمحمّل النماذج في Desk التي تُبقي سجل تغييرات **الإعدادات** ضمن شركات المستخدم.
+التطبيق والكتالوج، إضافةً إلى تجاوزات Card لمحمّل النماذج في Desk التي تُبقي سجل تغييرات **الإعدادات** ضمن شركات المستخدم.
 أما نقاط نهاية طلبات المشغّلين فهي في صفحة [المواد والاحتياجات](/card/ar/api-reference/materials-needs/).
 
 ## نقاط النهاية
 
 | الطريقة | نقطة النهاية | الغرض |
 |---|---|---|
-| GET | `card.mobile.get_session_context` | سياق CARD Mobile للمستخدم المسجّل. |
+| GET | `card.mobile.get_session_context` | سياق Card Mobile للمستخدم المسجّل. |
 | GET | `card.catalog.search` | صفحة واحدة من كتالوج القطع، مع التوافق لمعدة اختياريًا. |
 | GET | `card.catalog.filter_options` | قيم فلتر مجموعة الأصناف أو العلامة التجارية. |
 | GET | `card.fitment.fit_for` | توافق حتى 50 صنفًا لمعدة واحدة. |
@@ -37,7 +37,7 @@ Supervisor أو Card Manager أو System Manager (أدوار البوابة)، �
 **الصلاحية:** أحد أدوار البوابة، أو مستعرض كتالوج للقراءة فقط (Card User بلا دور بوابة). للقراءة فقط. **المعاملات:** لا
 توجد.
 
-**القيمة المعادة:** `{"user", "full_name", "roles" (أدوار بوابة CARD لدى المستخدم), "employee" ({name, employee_name, company}
+**القيمة المعادة:** `{"user", "full_name", "roles" (أدوار بوابة Card لدى المستخدم), "employee" ({name, employee_name, company}
 للموظف النشط المرتبط، أو null), "catalog_only": bool, "card_version"}`.
 
 ```bash
@@ -97,7 +97,7 @@ curl -s -G "https://<your-site>/api/method/card.catalog.filter_options" \
 
 `GET /api/method/card.fitment.fit_for`
 
-توافق حتى 50 صنفًا لمعدة واحدة، لمنتقي الأصناف المضمَّن في CARD Mobile. ولا يُجاب إلا عن الأصناف التي يحق للمستدعي عرضها
+توافق حتى 50 صنفًا لمعدة واحدة، لمنتقي الأصناف المضمَّن في Card Mobile. ولا يُجاب إلا عن الأصناف التي يحق للمستدعي عرضها
 في الكتالوج.
 
 | المعامل | النوع | إلزامي | الوصف |
@@ -133,17 +133,17 @@ curl -s -G "https://<your-site>/api/method/card.fitment.machines" -H "Authorizat
 
 ## أخرى: تجاوزات سجل تغييرات الإعدادات
 
-يسجّل CARD تجاوزين عبر `override_whitelisted_methods` حتى لا يرى المستخدم المقيّد بشركة، في سجل تغييرات نموذج **الإعدادات**،
+يسجّل Card تجاوزين عبر `override_whitelisted_methods` حتى لا يرى المستخدم المقيّد بشركة، في سجل تغييرات نموذج **الإعدادات**،
 أي تغيير على صف تابع لشركة أخرى:
 
-| الدالة المتجاوَزة | دالة CARD | المعاملات |
+| الدالة المتجاوَزة | دالة Card | المعاملات |
 |---|---|---|
 | `frappe.desk.form.load.getdoc` | `card.card.doctype.card_settings.card_settings.getdoc` | `doctype`، `name` |
 | `frappe.desk.form.load.get_docinfo` | `card.card.doctype.card_settings.card_settings.get_docinfo` | `doc` أو `doctype` + `name` |
 
-يستدعي كل تجاوز أولًا التجاوزَ الذي سجّله تطبيق آخر قبل CARD (أو دالة Frappe الأصلية)، فتبقى السلسلة محفوظة، ثم يحذف من
+يستدعي كل تجاوز أولًا التجاوزَ الذي سجّله تطبيق آخر قبل Card (أو دالة Frappe الأصلية)، فتبقى السلسلة محفوظة، ثم يحذف من
 `docinfo.versions` كل تغيير على صف تابع لشركة لا يحق للمستخدم قراءتها. ولا تتغير الاستجابات لأي نوع مستند آخر. ويواصل
-العملاء استدعاء مسارات Frappe القياسية، ولا داعي لاستدعاء دوال CARD مباشرة.
+العملاء استدعاء مسارات Frappe القياسية، ولا داعي لاستدعاء دوال Card مباشرة.
 
 ```bash
 curl -s -G "https://<your-site>/api/method/frappe.desk.form.load.getdoc" \
@@ -153,6 +153,6 @@ curl -s -G "https://<your-site>/api/method/frappe.desk.form.load.getdoc" \
 
 ## ذو صلة
 
-- [CARD Mobile](/card/ar/features/card-mobile/)
+- [Card Mobile](/card/ar/features/card-mobile/)
 - [الصيانة وقطع الغيار](/card/ar/features/maintenance-parts/)
 - [الإعداد](/card/ar/getting-started/configuration/)
