@@ -15,6 +15,7 @@ from frappe.utils import add_days, cint, flt, getdate, nowdate
 
 import card
 from card.materials import APPROVER_ROLES, ENDED_STATUS, PORTAL_ROLES, REVIEW_ROLES, has_any_role
+from card.report_access import permitted_companies
 
 
 def active_employee(user=None):
@@ -223,7 +224,13 @@ def financial_kpis():
 	today = getdate(nowdate())
 	cards = frappe.get_list(
 		"Card Monthly Card",
-		filters={"docstatus": 1, "year": today.year, "month": f"{today.month:02d}"},
+		filters={
+			"docstatus": 1,
+			"year": today.year,
+			"month": f"{today.month:02d}",
+			# the company scope of CARD reports (User Permissions on Company), applied explicitly
+			"company": ["in", permitted_companies("Card Monthly Card") or [""]],
+		},
 		fields=["company", "customer_net_amount", "net_amount"],
 		limit_page_length=0,
 	)
