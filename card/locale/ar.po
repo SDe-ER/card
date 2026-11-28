@@ -10753,5 +10753,5 @@ msgstr "الكروت الشهرية غير متاحة لدورك."
 msgid "Invalid period"
 msgstr "فترة غير صحيحة"
 
-msgid "Invalid filter"
-msgstr "عامل تصفية غير صحيح"
+msgid "Unsupported filter value"
+msgstr "قيمة تصفية غير مدعومة"

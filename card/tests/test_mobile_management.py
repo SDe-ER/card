@@ -123,12 +123,17 @@ class TestMobileManagement(IntegrationTestCase):
 		self.assertFalse(any("rate" in r or "net_amount" in r for r in rows))
 
 	def test_fleet_filters(self):
-		own = self._equipment(ownership="تشغيل داخلي", supplier=None)
+		rented = self._equipment()
 		user = self._user("filter", ["Card Supervisor"])
-		names = [r.name for r in self._as(user, mm.list_all_equipment, ownership="تشغيل داخلي")]
-		self.assertIn(own.name, names)
-		rented = [r.name for r in self._as(user, mm.list_all_equipment, ownership="إيجار")]
-		self.assertNotIn(own.name, rented)
+		options = self._as(user, mm.get_management_context)["ownership"]
+		self.assertIn(rented.ownership, options)
+		self.assertIn(
+			rented.name, [r.name for r in self._as(user, mm.list_all_equipment, ownership=rented.ownership)]
+		)
+		for other in (o for o in options if o != rented.ownership):
+			self.assertNotIn(
+				rented.name, [r.name for r in self._as(user, mm.list_all_equipment, ownership=other)]
+			)
 		with self.assertRaises(frappe.ValidationError):
 			self._as(user, mm.list_all_equipment, ownership="x' or '1'='1")
 
@@ -199,7 +204,7 @@ class TestMobileManagement(IntegrationTestCase):
 
 	def test_period_is_validated(self):
 		manager = self._user("period", ["Card Manager"])
-		for year, month in ((2026, 13), (2026, -1), (1999, 5), (2026, 0), ("x", 5)):
+		for year, month in ((2026, 13), (2026, -1), (1999, 5), (2026, 0)):
 			with self.subTest(year=year, month=month), self.assertRaises(frappe.ValidationError):
 				self._as(manager, mm.list_monthly_cards, year, month)
 

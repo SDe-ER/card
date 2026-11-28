@@ -61,9 +61,9 @@ def list_all_equipment(ownership: str | None = None, project: str | None = None,
 		if value:
 			filters[field] = value
 	if ownership and ownership not in _select_options("Card Equipment", "ownership"):
-		frappe.throw(_("Invalid filter"), frappe.ValidationError)
+		frappe.throw(_("Unsupported filter value"), frappe.ValidationError)
 	if status and status not in _select_options("Card Equipment", "status"):
-		frappe.throw(_("Invalid filter"), frappe.ValidationError)
+		frappe.throw(_("Unsupported filter value"), frappe.ValidationError)
 	if status:
 		filters["status"] = status
 	rows = scoped_rows(
