@@ -33,7 +33,7 @@ def catalog_only(user=None):
 
 
 def has_app_permission(require_employee=True):
-	"""Apps screen entry and page gate for Card Mobile: a CARD portal role and, unless told
+	"""Apps screen entry and page gate for Card Mobile: a Card portal role and, unless told
 	otherwise, an Active Employee; or a catalog viewer (no Employee needed)."""
 	if frappe.session.user == "Guest":
 		return False

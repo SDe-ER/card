@@ -41,7 +41,7 @@ Per-version documentation (complete feature inventory, comparison matrix, upgrad
 ### Changed
 - **The application name shows as `Card` in every language** (WS-013, FR-084; final Owner decision 2026-11-28,
   which reverses the decision of 2026-10-26 and PR #135 that made it `CARD`). `app_title`, the two apps-screen
-  titles (`Card`, `Card Mobile`), the CARD Mobile page titles and manifest, the Monthly Posting page title and every
+  titles (`Card`, `Card Mobile`), the Card Mobile page titles and manifest, the Monthly Posting page title and every
   user-facing message that named the application now read `Card`. In every locale, msgid `Card` maps to
   `Card`, and every translation that wrote the name as `CARD` writes `Card`. Record names, routes (`/app/card`,
   `/cdms`), DocType, role and field names, the literal tax template name `CARD VAT <rate>% - <abbr>`, the workspace
